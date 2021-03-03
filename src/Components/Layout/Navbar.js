@@ -11,16 +11,16 @@ function Navbar(props) {
 
   const onClickLogout = () => {
     setAuthenticated(false);
+    localStorage.removeItem("activeUser");
   };
+
   return (
     <div>
       <nav
         class="navbar navbar-expand-lg navbar-light"
         style={{ backgroundColor: "#e3f2fd" }}
       >
-        <a className="navbar-brand" href="#">
-          Admin Panel
-        </a>
+        <span className="navbar-brand">Admin Panel</span>
         <button
           className="navbar-toggler"
           type="button"
@@ -36,7 +36,7 @@ function Navbar(props) {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           {authenticated !== true ? (
             <ul
-              style={{ marginLeft: "80%", fontSize: "25px" }}
+              style={{ marginLeft: "80%", fontSize: "20px" }}
               className="navbar-nav mr-auto my-2"
             >
               <li className="nav-item active">
@@ -51,16 +51,24 @@ function Navbar(props) {
               </li>
             </ul>
           ) : (
-            <ul className="navbar-nav mr-auto my-2">
+            <ul
+              style={{ marginLeft: "60%", fontSize: "20px" }}
+              className="navbar-nav mr-auto my-2"
+            >
               <li className="nav-item active">
-                <a className="nav-link" href="#">
-                  Education Details <span className="sr-only">(current)</span>
-                </a>
+                <Link className="nav-link" to="/dashboard">
+                  Dashboard<span className="sr-only">(current)</span>
+                </Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#">
+                <Link className="nav-link" to="/education-details">
+                  Education Details
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/user-details">
                   User Details
-                </a>
+                </Link>
               </li>
               <li className="nav-item">
                 <Link to="/" className="nav-link" onClick={onClickLogout}>

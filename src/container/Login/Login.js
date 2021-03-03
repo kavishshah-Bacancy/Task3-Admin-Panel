@@ -1,9 +1,13 @@
 import React, { useContext, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import Input from "../../Components/Input/Input";
 import classes from "./Login.module.css";
 import authContext from "../Context/authContext";
 
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+toast.configure();
 function Login(props) {
   let history = useHistory();
   const { setAuthenticated } = useContext(authContext);
@@ -90,10 +94,13 @@ function Login(props) {
     typedPassword = loginData.password;
     if (typedEmail === email && typedPassword === password) {
       localStorage.setItem("activeUser", typedEmail);
+      toast.success("Logged in Successfully!");
       setAuthenticated(true);
       history.push("/Dashboard");
-    } else {
-      alert("Incorrect credentials");
+    } else if (email !== typedEmail) {
+      toast.info("User is Not Registered with us");
+    } else if (email === typedEmail && typedPassword !== password) {
+      toast.error("Incorrect password, Please Try again");
     }
   };
 
@@ -130,9 +137,17 @@ function Login(props) {
           disabled={!isFormValid}
           onClick={onLogin}
           class="btn btn-info"
+          style={{ width: "96%", marginLeft: "2%", marginTop: "5%" }}
         >
           Login
         </button>
+        <br></br>
+        <div style={{ padding: "2%" }}>
+          <Link to="/">Forget Password</Link>
+          <br></br>
+          Do not have accout ?
+          <Link to="/personalDetailsRegistration">Create One</Link>
+        </div>
       </form>
     </div>
   );

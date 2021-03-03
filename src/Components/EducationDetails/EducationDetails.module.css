@@ -1,0 +1,10 @@
+.card{
+    width: 90%;
+    text-align: center;
+    margin: 20px auto;
+    margin-bottom: 30px;
+    padding: 50px 15px;
+    color: gray;
+    vertical-align: middle;
+    box-shadow: 5px 5px 10px;
+}

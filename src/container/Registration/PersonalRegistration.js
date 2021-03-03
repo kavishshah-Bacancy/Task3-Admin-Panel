@@ -1,9 +1,12 @@
-import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useHistory } from "react-router-dom";
 import Input from "../../Components/Input/Input";
 import classes from "./Registration.module.css";
+import { confirmAlert } from "react-confirm-alert"; // Import
+import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
+import { toast } from "react-toastify";
 
-function PersonalRegistration() {
+function PersonalRegistration(props) {
   let history = useHistory();
   const [personalDetails, setPersonalDetails] = useState({
     firstName: {
@@ -98,7 +101,7 @@ function PersonalRegistration() {
       elementConfig: {
         placeholder: "Confirm password",
         name: "confirmpassword",
-        type: "confirmpassword",
+        type: "password",
       },
       value: "",
       validation: {
@@ -110,13 +113,53 @@ function PersonalRegistration() {
   });
   const [isFormValid, setIsFormValid] = useState(false);
 
+  useEffect(() => {
+    let personalDetail = {};
+    if (localStorage.getItem("personalDetails")) {
+      personalDetail = JSON.parse(localStorage.getItem("personalDetails"));
+      let exisitingPersoDetail = { ...personalDetails };
+      for (let key in exisitingPersoDetail) {
+        exisitingPersoDetail[key].value = personalDetail[key];
+        exisitingPersoDetail[key].valid = true;
+        exisitingPersoDetail[key].touched = true;
+      }
+      setIsFormValid(true);
+      setPersonalDetails(exisitingPersoDetail);
+    }
+  }, []);
+  const onClickBackToLogin = () => {
+    props.history.goBack();
+  };
   const onSubmitPersonalDetails = (e) => {
     e.preventDefault();
+    let users = JSON.parse(localStorage.getItem("users"));
+    if (users) {
+      if (users[0].user["email"] === personalDetails["email"].value) {
+        confirmAlert({
+          message: "User is already Registered with us",
+          buttons: [
+            {
+              label: "Move to Login",
+              onClick: () => {
+                props.history.goBack();
+              },
+            },
+            {
+              label: "Cancel",
+              onClick: () => {
+                return;
+              },
+            },
+          ],
+        });
+      }
+    }
     let personalArray = {};
     for (let inputs in personalDetails) {
       personalArray[inputs] = personalDetails[inputs].value;
     }
     localStorage.setItem("personalDetails", JSON.stringify(personalArray));
+    toast.success("Personal details Added");
     history.push("/educationDetailsRegistration");
   };
 
@@ -207,10 +250,20 @@ function PersonalRegistration() {
             />
           );
         })}
-        <button type="button" className="btn btn-danger">
+        <button
+          style={{ width: "48%" }}
+          type="button"
+          className="btn btn-danger"
+          onClick={onClickBackToLogin}
+        >
           Back to login
         </button>
-        <button type="submit" disabled={!isFormValid} className="btn btn-info">
+        <button
+          style={{ width: "48%", marginLeft: "2%" }}
+          type="submit"
+          disabled={!isFormValid}
+          className="btn btn-info"
+        >
           Next
         </button>
       </form>

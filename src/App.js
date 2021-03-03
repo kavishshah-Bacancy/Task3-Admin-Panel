@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import Navbar from "./Components/Layout/Navbar";
@@ -21,6 +21,11 @@ import EducationRegistration from "./container/Registration/EducationRegistratio
 export const MyContext = React.createContext();
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
+  useEffect(() => {
+    if (localStorage.getItem("activeUser")) {
+      setAuthenticated(true);
+    }
+  }, []);
   return (
     <div>
       <authContext.Provider value={{ authenticated, setAuthenticated }}>
