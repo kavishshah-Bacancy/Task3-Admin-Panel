@@ -11,11 +11,17 @@ toast.configure();
 function EducationDetails() {
   const [userEducationInfo, setUserEducationInfo] = useState([]);
   const [editFlag, setEditFlag] = useState(false);
+  const [endDateFlag, setEndDateFlag] = useState(true);
   const [editIndex, setIndex] = useState();
   const [updatedUserEducationInfo, setUpdatedUserEducationInfo] = useState({});
   useEffect(() => {
-    let user = JSON.parse(localStorage.getItem("users"));
-    setUserEducationInfo(user[0].education);
+    let activeUser = localStorage.getItem("activeUser");
+    let userDetail = JSON.parse(localStorage.getItem("users"));
+    for (let key in userDetail) {
+      if (userDetail[key].user.email === activeUser) {
+        setUserEducationInfo(userDetail[key].education);
+      }
+    }
   }, []);
   const onDelete = (index) => {
     confirmAlert({
@@ -25,15 +31,32 @@ function EducationDetails() {
         {
           label: "Yes",
           onClick: () => {
-            let users = JSON.parse(localStorage.getItem("users"));
-            console.log(users);
-            let educationDetail = users[0].education;
+            let educationDetail;
+            let activeUser = localStorage.getItem("activeUser");
+            let userDetail = JSON.parse(localStorage.getItem("users"));
+            for (let key in userDetail) {
+              if (userDetail[key].user.email === activeUser) {
+                educationDetail = userDetail[key].education;
+              }
+            }
             educationDetail.splice(index, 1);
-            users[0].education = educationDetail;
+            for (let key in userDetail) {
+              if (userDetail[key].user.email === activeUser) {
+                userDetail[key].education = educationDetail;
+              }
+            }
             localStorage.removeItem("users");
-            localStorage.setItem("users", JSON.stringify(users));
-            let user = JSON.parse(localStorage.getItem("users"));
-            setUserEducationInfo(user[0].education);
+            localStorage.setItem("users", JSON.stringify(userDetail));
+            for (let key in userDetail) {
+              if (userDetail[key].user.email === activeUser) {
+                setUserEducationInfo(userDetail[key].education);
+              }
+            }
+            // users[0].education = educationDetail;
+            // localStorage.removeItem("users");
+            // localStorage.setItem("users", JSON.stringify(users));
+            // let user = JSON.parse(localStorage.getItem("users"));
+            // setUserEducationInfo(user[0].education);
             toast.warning("Fields Deleted successfully");
           },
         },
@@ -49,14 +72,71 @@ function EducationDetails() {
 
   const onEdit = (index) => {
     setIndex(index);
-    let users = JSON.parse(localStorage.getItem("users"));
-    let educationDetail = users[0].education[index];
-    console.log(educationDetail);
-    setUpdatedUserEducationInfo(educationDetail);
+    let activeUser = localStorage.getItem("activeUser");
+    let userDetail = JSON.parse(localStorage.getItem("users"));
+    for (let key in userDetail) {
+      if (userDetail[key].user.email === activeUser) {
+        setUpdatedUserEducationInfo(userDetail[key].education[index]);
+      }
+    }
+    // let educationDetail = users[0].education[index];
+    // console.log(educationDetail);
+    // setUpdatedUserEducationInfo(educationDetail);
     setEditFlag(true);
   };
 
   const onChangeInputHandler = (e) => {
+    if (e.target.name === "startDate") {
+      if (e.target.value === "") {
+        document.getElementById("stdate").innerHTML =
+          "**Please Choose Start date";
+        document.getElementById("stdate").style.color = "red";
+        document.getElementById("stdate").style.fontSize = "15px";
+        document.getElementById("stdate").style.textAlign = "left";
+      } else {
+        setEndDateFlag(false);
+        document.getElementById("stdate").innerHTML = "";
+      }
+    }
+    if (e.target.name === "endDate") {
+      if (e.target.value === "") {
+        document.getElementById("endate").innerHTML =
+          "**Please Choose end date";
+        document.getElementById("stdate").style.color = "red";
+        document.getElementById("stdate").style.fontSize = "15px";
+        document.getElementById("stdate").style.textAlign = "left";
+      } else {
+        setEndDateFlag(false);
+        document.getElementById("stdate").innerHTML = "";
+      }
+    }
+    if (e.target.name === "Institute" && e.target.value === "") {
+      document.getElementById("ins").innerHTML =
+        "**Please write Institute name";
+      document.getElementById("ins").style.color = "red";
+      document.getElementById("ins").style.fontSize = "15px";
+      document.getElementById("ins").style.textAlign = "left";
+    } else {
+      document.getElementById("ins").innerHTML = "";
+    }
+
+    if (e.target.name === "stream" && e.target.value === "") {
+      document.getElementById("str").innerHTML = "**Please write Stream/Course";
+      document.getElementById("str").style.color = "red";
+      document.getElementById("str").style.fontSize = "15px";
+      document.getElementById("str").style.textAlign = "left";
+    } else {
+      document.getElementById("str").innerHTML = "";
+    }
+
+    if (e.target.name === "percentage" && e.target.value === "") {
+      document.getElementById("str").innerHTML = "**Please write Stream/Course";
+      document.getElementById("str").style.color = "red";
+      document.getElementById("str").style.fontSize = "15px";
+      document.getElementById("str").style.textAlign = "left";
+    } else {
+      document.getElementById("str").innerHTML = "";
+    }
     setUpdatedUserEducationInfo({
       ...updatedUserEducationInfo,
       [e.target.name]: e.target.value,
@@ -65,15 +145,27 @@ function EducationDetails() {
 
   const onUpdate = (e) => {
     e.preventDefault();
-    let users = JSON.parse(localStorage.getItem("users"));
-    console.log(users);
-    let educationDetail = users[0].education;
-    users[0].education[editIndex] = updatedUserEducationInfo;
-    console.log(users);
+    setEndDateFlag(true);
+    // let users = JSON.parse(localStorage.getItem("users"));
+    // console.log(users);
+    let activeUser = localStorage.getItem("activeUser");
+    let userDetail = JSON.parse(localStorage.getItem("users"));
+    for (let key in userDetail) {
+      if (userDetail[key].user.email === activeUser) {
+        userDetail[key].education[editIndex] = updatedUserEducationInfo;
+      }
+    }
+    // let educationDetail = users[0].education;
+    // users[0].education[editIndex] = updatedUserEducationInfo;
+    // console.log(users);
     localStorage.removeItem("users");
-    localStorage.setItem("users", JSON.stringify(users));
-    let user = JSON.parse(localStorage.getItem("users"));
-    setUserEducationInfo(user[0].education);
+    localStorage.setItem("users", JSON.stringify(userDetail));
+    //let user = JSON.parse(localStorage.getItem("users"));
+    for (let key in userDetail) {
+      if (userDetail[key].user.email === activeUser) {
+        setUserEducationInfo(userDetail[key].education);
+      }
+    }
     toast.success("Details Updated Successfully");
     setEditFlag(false);
   };
@@ -145,6 +237,7 @@ function EducationDetails() {
                 required
                 onChange={(e) => onChangeInputHandler(e)}
               />
+              <p id="ins"></p>
             </div>
             <div className="form-group">
               <label htmlFor="inputAddress2">Stream</label>
@@ -157,11 +250,12 @@ function EducationDetails() {
                 required
                 onChange={(e) => onChangeInputHandler(e)}
               />
+              <p id="str"></p>
             </div>
             <div className="form-group">
               <label htmlFor="inputAddress">Percentage / CGPA</label>
               <input
-                type="text"
+                type="number"
                 className="form-control"
                 value={updatedUserEducationInfo.percentage}
                 name="percentage"
@@ -180,8 +274,10 @@ function EducationDetails() {
                   placeholder="Email"
                   name="startDate"
                   required
+                  id="startDate"
                   onChange={(e) => onChangeInputHandler(e)}
                 />
+                <p id="stdate"></p>
               </div>
               <div className="form-group col-md-6">
                 <label htmlFor="inputPassword4">End Date</label>
@@ -190,18 +286,24 @@ function EducationDetails() {
                   className="form-control"
                   value={updatedUserEducationInfo.endDate}
                   placeholder="Password"
+                  disabled={endDateFlag}
                   name="endDate"
                   min={updatedUserEducationInfo.startDate}
                   required
                   onChange={(e) => onChangeInputHandler(e)}
                 />
+                <p id="endate"></p>
               </div>
             </div>
             <button type="submit" className="btn btn-primary">
               Update
             </button>
             <button
-              onClick={() => setEditFlag(false)}
+              type="button"
+              onClick={() => {
+                setEditFlag(false);
+                setEndDateFlag(true);
+              }}
               className="btn btn-danger"
             >
               Cancel

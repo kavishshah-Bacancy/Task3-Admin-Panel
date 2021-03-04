@@ -7,15 +7,80 @@ function Input(props) {
   let inputClass = [classes.InputElement];
 
   if (props.isValid && props.touched) {
-    console.log("Error");
     inputClass.push(classes.Invalid);
-    validationError = (
-      <h5
-        style={{ color: "red", fontSize: "10px", textTransform: "capitalize" }}
-      >
-        Please Enter {props.valueType}
-      </h5>
-    );
+    if (props.valueType === "confirmPassword") {
+      validationError = (
+        <h5
+          style={{
+            color: "red",
+            fontSize: "10px",
+            textTransform: "capitalize",
+          }}
+        >
+          **password and Confirm password doesn't match
+        </h5>
+      );
+    } else if (props.valueType === "password") {
+      validationError = (
+        <h5
+          style={{
+            color: "red",
+            fontSize: "10px",
+            textTransform: "capitalize",
+          }}
+        >
+          **password must be 8-16 character long
+        </h5>
+      );
+    } else if (props.valueType === "percentage") {
+      validationError = (
+        <h5
+          style={{
+            color: "red",
+            fontSize: "10px",
+            textTransform: "capitalize",
+          }}
+        >
+          **Dont use any alphabet/specialCharacter(except .)
+        </h5>
+      );
+    } else if (props.valueType === "startDate") {
+      validationError = (
+        <h5
+          style={{
+            color: "red",
+            fontSize: "10px",
+            textTransform: "capitalize",
+          }}
+        >
+          **Please Choose {props.valueType}
+        </h5>
+      );
+    } else if (props.valueType === "endDate") {
+      validationError = (
+        <h5
+          style={{
+            color: "red",
+            fontSize: "10px",
+            textTransform: "capitalize",
+          }}
+        >
+          **Please Choose valid {props.valueType}
+        </h5>
+      );
+    } else {
+      validationError = (
+        <h5
+          style={{
+            color: "red",
+            fontSize: "10px",
+            textTransform: "capitalize",
+          }}
+        >
+          Please Enter {props.valueType}
+        </h5>
+      );
+    }
   }
 
   switch (props.elementType) {

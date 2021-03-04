@@ -91,7 +91,6 @@ function EducationRegistration(props) {
   let educationForm = [];
 
   const onClickPrevious = () => {
-    console.log(props);
     props.history.goBack();
   };
   const checkInputvalidity = (value, rules) => {
@@ -121,6 +120,9 @@ function EducationRegistration(props) {
       if (educationDetails[elementId].value !== "")
         console.log(educationDetails[elementId].valid);
       educationDetails[elementId].valid = true;
+      if (updateFormElement.value < educationDetails["startDate"].value) {
+        educationDetails[elementId].valid = false;
+      }
     }
     updateFormElement.touched = true;
     updatedForm[elementId] = updateFormElement;
@@ -128,7 +130,6 @@ function EducationRegistration(props) {
     let formValid = true;
     for (let inputElement in educationDetails) {
       formValid = educationDetails[inputElement].valid && formValid;
-      console.log(inputElement, " ", educationDetails[inputElement].valid);
     }
     if (e.target.value.trim() === "") {
       formValid = false;
@@ -146,17 +147,14 @@ function EducationRegistration(props) {
     }
     let id = Math.random();
     storedCurrentEduData["id"] = id;
-    console.log(storedCurrentEduData);
     if (Object.keys(storedCurrentEduData).length !== 0) {
       setMultieducation([...multiEducation, storedCurrentEduData]);
     }
-    console.log(multiEducation);
     for (let inputField in currentEduData) {
       currentEduData[inputField].value = "";
       currentEduData[inputField].valid = false;
       currentEduData[inputField].touched = false;
     }
-    console.log(currentEduData);
     toast.success("Fields Added");
     setEducationDetails(currentEduData);
   };
@@ -211,7 +209,6 @@ function EducationRegistration(props) {
           onClick: () => {
             let updatedEduDetail = [...multiEducation];
             updatedEduDetail.splice(index, 1);
-            console.log(updatedEduDetail);
             setMultieducation(updatedEduDetail);
           },
         },
@@ -234,10 +231,19 @@ function EducationRegistration(props) {
       user: userPersonalDetails,
       education: userEducationDetails,
     });
-    console.log(userArray);
-    localStorage.setItem("users", JSON.stringify(userArray));
-    toast.info("Account Created");
-    history.push("/");
+    if (localStorage.getItem("users")) {
+      let users = JSON.parse(localStorage.getItem("users"));
+      let combinedArr = [...users, ...userArray];
+      localStorage.setItem("users", JSON.stringify(combinedArr));
+      localStorage.removeItem("personalDetails");
+      toast.info("Account Created");
+      history.push("/");
+    } else {
+      localStorage.setItem("users", JSON.stringify(userArray));
+      toast.info("Account Created");
+      localStorage.removeItem("personalDetails");
+      history.push("/");
+    }
   };
 
   for (let formelement in educationDetails) {
@@ -255,7 +261,6 @@ function EducationRegistration(props) {
         </h4>
         <form>
           {educationForm.map((formelement) => {
-            console.log(formelement.config.value);
             return (
               <Input
                 key={formelement.id}
@@ -270,44 +275,46 @@ function EducationRegistration(props) {
               />
             );
           })}
-          <button
-            style={{ width: "48%", padding: "10px 10px 10px 10px" }}
-            type="button"
-            id="pre"
-            className="btn btn-danger"
-            onClick={onClickPrevious}
-          >
-            Previous
-          </button>
-          {addFlag ? (
+          <div style={{ marginTop: "30%" }}>
             <button
-              style={{
-                marginLeft: "5%",
-                width: "48%",
-                padding: "10px 10px 10px 10px",
-              }}
+              style={{ width: "48%", padding: "10px 10px 10px 10px" }}
               type="button"
-              className="btn btn-success"
-              onClick={addMoreEducation}
-              disabled={!isFormValid}
+              id="pre"
+              className="btn btn-danger"
+              onClick={onClickPrevious}
             >
-              Add more
+              Previous
             </button>
-          ) : (
-            <button
-              style={{
-                marginLeft: "5%",
-                width: "48%",
-                padding: "10px 10px 10px 10px",
-              }}
-              type="button"
-              className="btn btn-success"
-              onClick={updateEducation}
-              disabled={!isFormValid}
-            >
-              Update
-            </button>
-          )}
+            {addFlag ? (
+              <button
+                style={{
+                  marginLeft: "5%",
+                  width: "48%",
+                  padding: "10px 10px 10px 10px",
+                }}
+                type="button"
+                className="btn btn-success"
+                onClick={addMoreEducation}
+                disabled={!isFormValid}
+              >
+                Add more
+              </button>
+            ) : (
+              <button
+                style={{
+                  marginLeft: "5%",
+                  width: "48%",
+                  padding: "10px 10px 10px 10px",
+                }}
+                type="button"
+                className="btn btn-success"
+                onClick={updateEducation}
+                disabled={!isFormValid}
+              >
+                Update
+              </button>
+            )}
+          </div>
         </form>
       </div>
       <div>

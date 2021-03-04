@@ -3,6 +3,8 @@ import React, { useState, useContext } from "react";
 import Login from "../../container/Login/Login";
 import authContext from "../../container/Context/authContext";
 import { Link, useHistory } from "react-router-dom";
+import { confirmAlert } from "react-confirm-alert"; // Import
+import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 
 function Navbar(props) {
   let history = useHistory();

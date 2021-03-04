@@ -4,13 +4,18 @@ function Dashboard() {
   const [firstname, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   useEffect(() => {
+    let activeUser = localStorage.getItem("activeUser");
     let userDetail = JSON.parse(localStorage.getItem("users"));
-    setFirstName(userDetail[0].user["firstName"]);
-    setLastName(userDetail[0].user["lastName"]);
+    for (let key in userDetail) {
+      if (userDetail[key].user.email === activeUser) {
+        setFirstName(userDetail[key].user["firstName"]);
+        setLastName(userDetail[key].user["lastName"]);
+      }
+    }
   });
   return (
     <div>
-      <p>
+      <p style={{ marginTop: "19%" }}>
         You logged in as {firstname} {lastName}
       </p>
     </div>

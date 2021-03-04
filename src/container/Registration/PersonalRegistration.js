@@ -112,6 +112,8 @@ function PersonalRegistration(props) {
     },
   });
   const [isFormValid, setIsFormValid] = useState(false);
+  const [userRegFlag, setUserRegFlag] = useState(false);
+  const [name, setName] = useState();
 
   useEffect(() => {
     let personalDetail = {};
@@ -123,8 +125,9 @@ function PersonalRegistration(props) {
         exisitingPersoDetail[key].valid = true;
         exisitingPersoDetail[key].touched = true;
       }
-      setIsFormValid(true);
       setPersonalDetails(exisitingPersoDetail);
+      setIsFormValid(true);
+      setName(exisitingPersoDetail["firstName"].value);
     }
   }, []);
   const onClickBackToLogin = () => {
@@ -134,33 +137,49 @@ function PersonalRegistration(props) {
     e.preventDefault();
     let users = JSON.parse(localStorage.getItem("users"));
     if (users) {
-      if (users[0].user["email"] === personalDetails["email"].value) {
-        confirmAlert({
-          message: "User is already Registered with us",
-          buttons: [
-            {
-              label: "Move to Login",
-              onClick: () => {
-                props.history.goBack();
+      for (let key in users) {
+        if (users[key].user.email === personalDetails["email"].value) {
+          confirmAlert({
+            message: "User is already Registered with us",
+            buttons: [
+              {
+                label: "Move to Login",
+                onClick: () => {
+                  props.history.goBack();
+                },
               },
-            },
-            {
-              label: "Cancel",
-              onClick: () => {
-                return;
+              {
+                label: "Cancel",
+                onClick: () => {
+                  return;
+                },
               },
-            },
-          ],
-        });
+            ],
+          });
+          setUserRegFlag(false);
+          break;
+        } else {
+          setUserRegFlag(true);
+        }
       }
+      if (userRegFlag) {
+        let personalArray = {};
+        for (let inputs in personalDetails) {
+          personalArray[inputs] = personalDetails[inputs].value;
+        }
+        localStorage.setItem("personalDetails", JSON.stringify(personalArray));
+        toast.success("Personal details Added");
+        history.push("/educationDetailsRegistration");
+      }
+    } else {
+      let personalArray = {};
+      for (let inputs in personalDetails) {
+        personalArray[inputs] = personalDetails[inputs].value;
+      }
+      localStorage.setItem("personalDetails", JSON.stringify(personalArray));
+      toast.success("Personal details Added");
+      history.push("/educationDetailsRegistration");
     }
-    let personalArray = {};
-    for (let inputs in personalDetails) {
-      personalArray[inputs] = personalDetails[inputs].value;
-    }
-    localStorage.setItem("personalDetails", JSON.stringify(personalArray));
-    toast.success("Personal details Added");
-    history.push("/educationDetailsRegistration");
   };
 
   const checkInputvalidity = (value, rules) => {
@@ -203,7 +222,6 @@ function PersonalRegistration(props) {
 
     let formValid = true;
     for (let inputElement in personalDetails) {
-      console.log(inputElement, " ", personalDetails[inputElement].valid);
       formValid = personalDetails[inputElement].valid && formValid;
     }
 
@@ -243,7 +261,7 @@ function PersonalRegistration(props) {
               valueType={formelement.id}
               elementType={formelement.config.elementType}
               elementConfig={formelement.config.elementConfig}
-              value={formelement.value}
+              value={formelement.config.value}
               isValid={!formelement.config.valid}
               touched={formelement.config.touched}
               changed={(e) => onInputChangeHandler(e, formelement.id)}

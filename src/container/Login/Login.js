@@ -12,6 +12,7 @@ function Login(props) {
   let history = useHistory();
   const { setAuthenticated } = useContext(authContext);
   const [isFormValid, setIsFormValid] = useState(false);
+  const [loginUserFlag, setLoginUserFlag] = useState(false);
   const [loginForm, setLoginForm] = useState({
     email: {
       elementType: "input",
@@ -80,6 +81,7 @@ function Login(props) {
   const onLogin = (e) => {
     e.preventDefault();
     let userDetail = JSON.parse(localStorage.getItem("users"));
+
     let email = userDetail[0].user.email;
     let password = userDetail[0].user.password;
 
@@ -92,21 +94,33 @@ function Login(props) {
 
     typedEmail = loginData.email;
     typedPassword = loginData.password;
-    if (typedEmail === email && typedPassword === password) {
-      localStorage.setItem("activeUser", typedEmail);
-      toast.success("Logged in Successfully!");
-      setAuthenticated(true);
-      history.push("/Dashboard");
-    } else if (email !== typedEmail) {
-      toast.info("User is Not Registered with us");
-    } else if (email === typedEmail && typedPassword !== password) {
-      toast.error("Incorrect password, Please Try again");
+    for (let key in userDetail) {
+      if (typedEmail === userDetail[key].user.email) {
+        if (typedPassword === userDetail[key].user.password) {
+          setLoginUserFlag(false);
+          localStorage.setItem("activeUser", typedEmail);
+          toast.success("Logged in Successfully!");
+          setAuthenticated(true);
+
+          history.push("/Dashboard");
+        } else {
+          setLoginUserFlag(false);
+          toast.error("Incorrect password, Please Try again");
+          return;
+        }
+      } else {
+        setLoginUserFlag(true);
+      }
+    }
+
+    if (loginUserFlag) {
+      toast.info("User is not registred with us");
+      return;
     }
   };
 
   const formsArray = [];
   for (let loginFormItem in loginForm) {
-    console.log(loginFormItem);
     formsArray.push({
       id: loginFormItem,
       config: loginForm[loginFormItem],
@@ -114,11 +128,9 @@ function Login(props) {
   }
   return (
     <div className={classes.logForm}>
-      {console.log(props)}
       <p>Login {props.name}</p>
       <form>
         {formsArray.map((formelement) => {
-          console.log(formelement);
           return (
             <Input
               key={formelement.id}
