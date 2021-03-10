@@ -10,20 +10,30 @@ import "react-toastify/dist/ReactToastify.css";
 toast.configure();
 function EducationDetails() {
   const [userEducationInfo, setUserEducationInfo] = useState([]);
+  const [userEducationInfo1, setUserEducationInfo1] = useState([]);
   const [editFlag, setEditFlag] = useState(false);
   const [endDateFlag, setEndDateFlag] = useState(true);
   const [editIndex, setIndex] = useState();
   const [updatedUserEducationInfo, setUpdatedUserEducationInfo] = useState({});
   useEffect(() => {
-    let activeUser = localStorage.getItem("activeUser");
+    let edu = [];
+    let finaledu = [];
     let userDetail = JSON.parse(localStorage.getItem("users"));
     for (let key in userDetail) {
-      if (userDetail[key].user.email === activeUser) {
-        setUserEducationInfo(userDetail[key].education);
+      for (let edkey in userDetail[key].education) {
+        edu.push(userDetail[key].education[edkey]);
       }
+      finaledu.push({
+        edu: edu,
+        name: `${userDetail[key].user["firstName"]} ${userDetail[key].user["lastName"]}`,
+      });
+      edu = [];
     }
+    console.log(finaledu);
+    setUserEducationInfo1(finaledu);
+    setUserEducationInfo(edu);
   }, []);
-  const onDelete = (index) => {
+  const onDelete = (id) => {
     confirmAlert({
       title: "Confirm to Delete",
       message: "Are you sure to delete this.",
@@ -31,32 +41,31 @@ function EducationDetails() {
         {
           label: "Yes",
           onClick: () => {
-            let educationDetail;
-            let activeUser = localStorage.getItem("activeUser");
             let userDetail = JSON.parse(localStorage.getItem("users"));
             for (let key in userDetail) {
-              if (userDetail[key].user.email === activeUser) {
-                educationDetail = userDetail[key].education;
+              for (let edkey in userDetail[key].education) {
+                if (userDetail[key].education[edkey].id === id) {
+                  userDetail[key].education.splice(edkey, 1);
+                }
               }
             }
-            educationDetail.splice(index, 1);
-            for (let key in userDetail) {
-              if (userDetail[key].user.email === activeUser) {
-                userDetail[key].education = educationDetail;
-              }
-            }
+
             localStorage.removeItem("users");
             localStorage.setItem("users", JSON.stringify(userDetail));
+            let edu = [];
+            let finaledu = [];
             for (let key in userDetail) {
-              if (userDetail[key].user.email === activeUser) {
-                setUserEducationInfo(userDetail[key].education);
+              for (let edkey in userDetail[key].education) {
+                edu.push(userDetail[key].education[edkey]);
               }
+              finaledu.push({
+                edu: edu,
+                name: userDetail[key].user["firstName"],
+              });
+              edu = [];
             }
-            // users[0].education = educationDetail;
-            // localStorage.removeItem("users");
-            // localStorage.setItem("users", JSON.stringify(users));
-            // let user = JSON.parse(localStorage.getItem("users"));
-            // setUserEducationInfo(user[0].education);
+            console.log(finaledu);
+            setUserEducationInfo1(finaledu);
             toast.warning("Fields Deleted successfully");
           },
         },
@@ -71,17 +80,17 @@ function EducationDetails() {
   };
 
   const onEdit = (index) => {
+    console.log(index);
     setIndex(index);
-    let activeUser = localStorage.getItem("activeUser");
     let userDetail = JSON.parse(localStorage.getItem("users"));
     for (let key in userDetail) {
-      if (userDetail[key].user.email === activeUser) {
-        setUpdatedUserEducationInfo(userDetail[key].education[index]);
+      for (let edkey in userDetail[key].education) {
+        console.log(edkey);
+        if (userDetail[key].education[edkey].id === index) {
+          setUpdatedUserEducationInfo(userDetail[key].education[edkey]);
+        }
       }
     }
-    // let educationDetail = users[0].education[index];
-    // console.log(educationDetail);
-    // setUpdatedUserEducationInfo(educationDetail);
     setEditFlag(true);
   };
 
@@ -146,26 +155,28 @@ function EducationDetails() {
   const onUpdate = (e) => {
     e.preventDefault();
     setEndDateFlag(true);
-    // let users = JSON.parse(localStorage.getItem("users"));
-    // console.log(users);
-    let activeUser = localStorage.getItem("activeUser");
     let userDetail = JSON.parse(localStorage.getItem("users"));
     for (let key in userDetail) {
-      if (userDetail[key].user.email === activeUser) {
-        userDetail[key].education[editIndex] = updatedUserEducationInfo;
+      for (let edkey in userDetail[key].education) {
+        console.log(edkey);
+        if (userDetail[key].education[edkey].id === editIndex) {
+          userDetail[key].education[edkey] = updatedUserEducationInfo;
+        }
       }
     }
-    // let educationDetail = users[0].education;
-    // users[0].education[editIndex] = updatedUserEducationInfo;
-    // console.log(users);
     localStorage.removeItem("users");
     localStorage.setItem("users", JSON.stringify(userDetail));
-    //let user = JSON.parse(localStorage.getItem("users"));
+    let edu = [];
+    let finaledu = [];
     for (let key in userDetail) {
-      if (userDetail[key].user.email === activeUser) {
-        setUserEducationInfo(userDetail[key].education);
+      for (let edkey in userDetail[key].education) {
+        edu.push(userDetail[key].education[edkey]);
       }
+      finaledu.push({ edu: edu, name: userDetail[key].user["firstName"] });
+      edu = [];
     }
+    console.log(finaledu);
+    setUserEducationInfo1(finaledu);
     toast.success("Details Updated Successfully");
     setEditFlag(false);
   };
@@ -173,7 +184,70 @@ function EducationDetails() {
   return (
     <div>
       <div className={classes.card}>
-        <table class="table">
+        {userEducationInfo1.map((item) => {
+          return (
+            <React.Fragment>
+              <p style={{ fontSize: "25px" }}>{item.name}</p>
+              <table className="table">
+                <thead
+                  class="thead-inverse"
+                  style={{ backgroundColor: "whitesmoke" }}
+                >
+                  <tr>
+                    <th>School/University Name</th>
+                    <th>Stream</th>
+                    <th>Percebtage/CGPA</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Options</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {item.edu.length !== 0 ? (
+                    item.edu.map((item, index) => {
+                      return (
+                        <tr key={index}>
+                          <td>{item.Institute}</td>
+                          <td>{item.stream}</td>
+                          <td>{item.percentage}</td>
+                          <td>{item.startDate}</td>
+                          <td>{item.endDate}</td>
+                          <td>
+                            <button
+                              onClick={() => onEdit(item.id)}
+                              className="btn btn-info"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => onDelete(item.id)}
+                              className="btn btn-danger"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <td colSpan="5">
+                      <p
+                        style={{
+                          fontSize: "17px",
+                          marginLeft: "14%",
+                          color: "lightsalmon",
+                        }}
+                      >
+                        Education Details Not Available
+                      </p>
+                    </td>
+                  )}
+                </tbody>
+              </table>
+            </React.Fragment>
+          );
+        })}
+        {/* <table class="table">
           <thead
             class="thead-inverse"
             style={{ backgroundColor: "whitesmoke" }}
@@ -198,13 +272,13 @@ function EducationDetails() {
                   <td>{item.endDate}</td>
                   <td>
                     <button
-                      onClick={() => onEdit(index)}
+                      onClick={() => onEdit(item.id)}
                       className="btn btn-info"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => onDelete(index)}
+                      onClick={() => onDelete(item.id)}
                       className="btn btn-danger"
                     >
                       Delete
@@ -214,7 +288,7 @@ function EducationDetails() {
               );
             })}
           </tbody>
-        </table>
+        </table> */}
       </div>
       <Modal open={editFlag} onClose={() => setEditFlag(false)}>
         <div
@@ -286,7 +360,6 @@ function EducationDetails() {
                   className="form-control"
                   value={updatedUserEducationInfo.endDate}
                   placeholder="Password"
-                  disabled={endDateFlag}
                   name="endDate"
                   min={updatedUserEducationInfo.startDate}
                   required

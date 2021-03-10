@@ -54,7 +54,7 @@ function Navbar(props) {
             </ul>
           ) : (
             <ul
-              style={{ marginLeft: "60%", fontSize: "20px" }}
+              style={{ marginLeft: "57%", fontSize: "20px" }}
               className="navbar-nav mr-auto my-2"
             >
               <li className="nav-item active">

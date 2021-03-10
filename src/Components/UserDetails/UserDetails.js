@@ -1,38 +1,25 @@
 /* eslint-disable jsx-a11y/img-redundant-alt */
 import React, { useEffect, useState } from "react";
-import { ModalBody } from "react-bootstrap";
-import "./UserDetails.css";
-import img from "../../assets/profile.png";
-import { BsFillEnvelopeFill } from "react-icons/bs";
-import { MdDialerSip } from "react-icons/md";
 import Modal from "react-responsive-modal";
 import { toast } from "react-toastify";
+import classes from "./UserDetails.module.css";
 
 toast.configure();
 function UserDetails() {
-  const [firstname, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [gender, setGender] = useState("");
-  const [email, setEmail] = useState("");
+  const [userData, setUserData] = useState(null);
   const [password, setPassword] = useState("");
   const [editPasswordFlag, setEditPasswordFlag] = useState(false);
   const [existingPassword, setExistingPassword] = useState();
   const [newPassword, setNewPassword] = useState();
-  const [updateBtnFlag, setUpdateBtnFlag] = useState(true);
+  const [userEmail, setUserEmail] = useState();
   useEffect(() => {
-    let activeUser = localStorage.getItem("activeUser");
     let userDetail = JSON.parse(localStorage.getItem("users"));
+    let users = [];
     for (let key in userDetail) {
-      if (userDetail[key].user.email === activeUser) {
-        setFirstName(userDetail[key].user["firstName"]);
-        setLastName(userDetail[key].user["lastName"]);
-        setEmail(userDetail[key].user["email"]);
-        setPhone(userDetail[key].user["phone"]);
-        setGender(userDetail[key].user["gender"]);
-        setPassword(userDetail[key].user["password"]);
-      }
+      users.push(userDetail[key].user);
     }
+    setUserData(users);
+    console.log(userData);
   }, []);
 
   const onInputChangeHandler = (e) => {
@@ -69,13 +56,14 @@ function UserDetails() {
   };
   const onUpdatePassword = (e) => {
     e.preventDefault();
+    console.log(password, " ", existingPassword, " ", newPassword);
     if (existingPassword !== password) {
       toast.error("Old password Does not match");
     } else {
-      let activeUser = localStorage.getItem("activeUser");
+      //let activeUser = localStorage.getItem("activeUser");
       let userDetail = JSON.parse(localStorage.getItem("users"));
       for (let key in userDetail) {
-        if (userDetail[key].user.email === activeUser) {
+        if (userDetail[key].user.email === userEmail) {
           userDetail[key].user.password = newPassword;
         }
       }
@@ -83,37 +71,70 @@ function UserDetails() {
       localStorage.setItem("users", JSON.stringify(userDetail));
       toast.info("Password updated successfully");
       setEditPasswordFlag(false);
+      let users = [];
+      for (let key in userDetail) {
+        users.push(userDetail[key].user);
+      }
+      setUserData(users);
     }
   };
+
+  let user = <p>Loading...</p>;
+
+  if (userData !== null) {
+    user = (
+      <React.Fragment>
+        {userData.map((item, index) => {
+          return (
+            <tr key={index}>
+              <td>
+                {item.firstName} {item.lastName}
+              </td>
+              <td>
+                <b>{item.email}</b>
+              </td>
+              <td>{item.phone}</td>
+              <td>{item.gender}</td>
+              <td>
+                <button style={{ width: "auto" }} className="btn btn-success">
+                  Edit Profile
+                </button>
+                <button
+                  style={{ width: "auto" }}
+                  onClick={() => {
+                    setEditPasswordFlag(true);
+                    setPassword(item.password);
+                    setUserEmail(item.email);
+                  }}
+                  className="btn btn-info"
+                >
+                  Edit Password
+                </button>
+              </td>
+            </tr>
+          );
+        })}
+      </React.Fragment>
+    );
+  }
   return (
     <React.Fragment>
-      <div style={{ marginTop: "5%" }}>
-        <div class="col-md-4 mt-4" style={{ marginLeft: "30%" }}>
-          <div class="card profile-card-4">
-            <div class="card-body pt-5">
-              <img src={img} alt="profile-image" class="profile" />
-              <h5 class="card-title text-center">
-                {firstname} {lastName}
-              </h5>
-              <p class="card-text text-center">
-                <BsFillEnvelopeFill /> <span>{email}</span>
-              </p>
-              <p class="card-text text-center">
-                <MdDialerSip /> : <span>{phone}</span>
-              </p>
-              <p class="card-text text-center">
-                Gender : <span>{gender}</span>
-              </p>
-              <button className="btn btn-success">Edit Profile</button>
-              <button
-                onClick={() => setEditPasswordFlag(true)}
-                className="btn btn-info"
-              >
-                Edit Password
-              </button>
-            </div>
-          </div>
-        </div>
+      <div className={classes.card}>
+        <table class="table">
+          <thead
+            class="thead-inverse"
+            style={{ backgroundColor: "whitesmoke" }}
+          >
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Gender</th>
+              <th>Options</th>
+            </tr>
+          </thead>
+          <tbody>{user}</tbody>
+        </table>
       </div>
       <Modal open={editPasswordFlag} onClose={() => setEditPasswordFlag(false)}>
         <div
@@ -152,7 +173,6 @@ function UserDetails() {
             </div>
             <button
               style={{ marginLeft: "20%", width: "200px" }}
-              disabled={updateBtnFlag}
               type="submit"
               className="btn btn-primary"
             >
