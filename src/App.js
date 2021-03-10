@@ -17,6 +17,8 @@ import authContext from "./container/Context/authContext";
 import PersonalDetails from "./container/Registration/PersonalRegistration";
 import PersonalRegistration from "./container/Registration/PersonalRegistration";
 import EducationRegistration from "./container/Registration/EducationRegistration";
+import Authguard from "./Components/Authguard/Authguard";
+import PageNotFound from "./Components/PageNotFound/PageNotFound";
 
 export const MyContext = React.createContext();
 function App() {
@@ -33,9 +35,12 @@ function App() {
           <Navbar>
             <Switch>
               <Route path="/" exact component={Login} />
-              <Route path="/Dashboard" component={Dashboard} />
-              <Route path="/user-details" component={UserDetails} />
-              <Route path="/education-details" component={EducationDetails} />
+              <Authguard path="/Dashboard" component={Dashboard} />
+              <Authguard path="/user-details" component={UserDetails} />
+              <Authguard
+                path="/education-details"
+                component={EducationDetails}
+              />
               <Route
                 path="/personalDetailsRegistration"
                 component={PersonalRegistration}
@@ -44,6 +49,7 @@ function App() {
                 path="/educationDetailsRegistration"
                 component={EducationRegistration}
               />
+              <Route path="*" component={PageNotFound} />
             </Switch>
           </Navbar>
         </Router>
